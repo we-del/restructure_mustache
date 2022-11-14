@@ -1,0 +1,24 @@
+/* 
+ * 2022/11/14 9:44
+ * author: xxx
+ * @description:
+ */
+
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "module": "es6",
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "strict": true,
+    "moduleResolution": "node"
+  }
+}
