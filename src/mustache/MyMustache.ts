@@ -3,8 +3,8 @@
   @param
 */
 
-import Parser from "@/Parser";
-import Scanner from "@/Scanner";
+import Parser from "@/mustache/Parser";
+import Scanner from "@/mustache/Scanner";
 
 export default class MyMustache {
     private parser: Parser

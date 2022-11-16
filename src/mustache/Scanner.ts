@@ -15,6 +15,7 @@ export default class Scanner {
     private last: number
 
     constructor(template: string) {
+        // 清除所有空格
         this.template = this.trim(template)
         this.first = 0
         this.last = 1
@@ -47,7 +48,6 @@ export default class Scanner {
                 // 匹配到了 {{ 字符串 ,且下一个不是{ 则说明找到了插入点
                 if (patternLeftMustacheNum == 2 && template[this.last + 1] !== '{') {
                     const str = template.substring(this.first, this.last - 1)
-                    console.log('@找到了插入点，截取之前的字串，为： ', str)
                     const arr = ['text', str]
                     returnStructure.push(arr)
                     this.first = this.last + 1 // 记录待插入点位的坐标
@@ -118,8 +118,6 @@ export default class Scanner {
 
     private parseObjCheck(str: string): string {
         const findIndex = str.indexOf('.')
-        console.log('@find____string', str)
-        console.log('@find____string', findIndex)
         if (findIndex != -1) {
             const strArr = str.split('.')
             const strLen = strArr.length
