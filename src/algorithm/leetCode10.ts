@@ -15,7 +15,7 @@ export default function leetCode10() {
     function isMatch(s: string, p: string): boolean {
         // 判断是否存在特殊字符，如 /d /w  * . ? ^ $
         const flag = isPlainReg(p);
-        if (flag) return s.indexOf(p) !== -1
+        if (flag) return p.indexOf(s) !== -1
         else {
             const uniqueArgObj = searchUniqueStr(p)
             const errorHandler = errorHandle(uniqueArgObj, p, s)
@@ -127,9 +127,6 @@ export default function leetCode10() {
 
             return workProcess(0, 0, str, reg)
         }
-
-
-        return true
     }
 
     function workProcess(first: number, last: number, str: string, reg: string): boolean {
@@ -157,11 +154,15 @@ export default function leetCode10() {
                     tmpLast++
                     regRecordCount++
                 }
+                first-- // 在 * 匹配到的基础上需-1 因为 在循环最后会+1
                 // 记录得到 reg移动次数 小于等于  str时，说明 *帮助匹配了多个char此时移动到最新位置，否则还有多余的子串为匹配返回false
+                if (recordCount == 0 && regRecordCount == 0) first-- // 此时说明 n* 是需要过滤掉的一项
                 if (regRecordCount <= recordCount) last = tmpLast
                 else return false
-            }
-            if (reg[last] == str[first]) last++
+            } else if (reg[last] != str[first] && reg[last + 1] === '*') {
+                last++
+                first-- // 此时fist不应该移动，--用于中和后面的 first++
+            } else if (reg[last] == str[first]) last++
             first++
         }
         if (last >= regLimitBoundary) return true
@@ -169,5 +170,5 @@ export default function leetCode10() {
         return false
     }
 
-    console.log('匹配字符', isMatch('a', 'aa'))
+    console.log('匹配字符', isMatch('mississippi', 'mis*is*p*.'))
 }
