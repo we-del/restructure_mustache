@@ -14,20 +14,37 @@ export function h(elType: string, data: any, children: any): VNode;
 export function h(elType: string, b?: any, c?: any): VNode {
     const argLen = arguments.length
 
-    let data: any = undefined
-    let text: any = undefined
-    let children = undefined
-    let elm = undefined
-    let key = undefined
+    let data: any = ''
+    let text: any = ''
+    let children: any = ''
+    let elm = ''
+    let key = ''
 
     if (argLen == 2) {
-        if (typeof b === 'object') children = b
-        else text = b
+        if (typeof b === 'object') {
+            if (Array.isArray(b)) {
+
+                children = b
+            } else {
+                children = [b]
+            }
+
+        } else text = b
 
     } else if (argLen == 3) {
-        if (typeof c === 'object') children = c
-        else text = c
+        if (typeof c === 'object') {
+            if (Array.isArray(c)) {
+                children = c
+            } else {
+                children = [c]
+            }
+        } else text = c
+        if (Reflect.has(b, 'key')) {
+            key = b.key
+            Reflect.deleteProperty(b, 'key')
+        }
         data = b
+
 
     }
     return vNode(elType, data, text, children, key, elm)
