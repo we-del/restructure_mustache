@@ -104,6 +104,7 @@ function shouldSameVNode(oldVNode: any, newVNode: any) {
   @param newVNode 新插入的虚拟dom系欸点
 */
 function treeReMount(oldTreeFatherVNode: any, newVNode: any) {
+    console.log('remount')
     // 删除旧dom树上的子节点
     oldTreeFatherVNode.children.elm.remove()
     // 新增新dom子节点

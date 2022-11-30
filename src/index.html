@@ -9,20 +9,9 @@
 <button>改变</button>
 <div id="container"></div>
 
-<div id="tmp">
-    <div>remove_node1</div>
-    <div>remove_node2</div>
-</div>
 <script>
-    const tmp = document.querySelector('#tmp')
-    const div = document.querySelector('#tmp>div')
-    div.onclick = () => {
-
-        div.remove()
-    }
-    document.querySelector('#tmp:first-child').onclick = () => {
-        tmp.remove()
-    }
+   const reg =  '2[a]2[b]'.matchAll(/(\d+)\[(.*?)\]/g)
+   console.log(reg)
 </script>
 <!--蓝桥-->
 <script defer>

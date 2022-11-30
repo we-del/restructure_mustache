@@ -27,7 +27,12 @@ export default function () {
     // ]))
 
 
-    const vNode = patch(container, h('div', '我是内容1'))
+    const vNode = patch(container, h('div', [
+        h('h1', '我是内容h1'),
+        h('h2', '我是内容 hello'),
+        h('div', '我是内容div'),
+        h('p', '我是内容ppp'),
+    ]))
     console.log('@before', vNode)
     const btnNode: any = document.querySelector('button')
     btnNode.onclick = () => {
@@ -51,12 +56,7 @@ export default function () {
         // 例子3通过 多对一
         // const newNode = patch(vNode, h('div',
         //     h('div', '我来啦')))
-        const newNode = patch(vNode, h('div',
-          [
-              h('span','我来'),
-              h('h1','hello'),
-              h('h1',' world!')
-          ]))
+        const newNode = patch(vNode, h('div', '我是新节点'))
         console.log('@res', newNode)
     }
 
