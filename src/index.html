@@ -12,12 +12,7 @@
     <title>Title</title>
     <style>
         #app{
-            max-width: 480px;
-            min-width: 320px;
-            min-height: 100vh;
-            text-align: center;
-            margin: 0 auto;
-            background-color: pink;
+            background-color: #007079;
         }
     </style>
 </head>
@@ -28,6 +23,11 @@
 
 <div id="app">
     <h1>我是包裹块</h1>
+    <pre>
+        <code id="origin">
+        </code>
+        <code id="result"></code>
+    </pre>
 </div>
 <script>
    const reg =  '2[a]2[b]'.matchAll(/(\d+)\[(.*?)\]/g)
