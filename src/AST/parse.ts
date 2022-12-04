@@ -8,6 +8,12 @@ export default function (template: string) {
     const resultCode: any = document.querySelector('#result')
     originCode.innerText = template
     template = clearSpace(template)
+
+
+    // 查找路径的唯一标识
+    let tid = 0
+
+    // 遍历字符串的指针
     let point = 0
     const templateLen = template.length
 
@@ -25,6 +31,7 @@ export default function (template: string) {
 
        @bug
          存在一个同路径相同标签情况，导致寻找到了错误的父节点，需要解决
+         解决了此bug但未完全解决，相同路径标签的情况下无法正确的匹配对应标签位置，需要一个标识
     */
     let astTree: any = []
     while (point < templateLen) {
@@ -70,17 +77,26 @@ export default function (template: string) {
             attrs = res.attrs
 
 
-            tagStack.push(tag)
+            // tagStack.push(tag)
+            const tagPath = {tag, tid}
+            tagStack.push(tagPath)
             console.log('匹配到了头', regTagOpen.exec(curTemplatePlace));
 
-            insertTreeNodeToAST(tag, attrs, astTree, tagStack)
+            insertTreeNodeToAST(tagPath, attrs, astTree, tagStack)
 
-
+            tid++
+            // 将指针移动到闭合标签的 >位置，以供内容匹配
             point += match[0].length - 1
             continue
         }
+        // 都没有中则指针前移
         point++
     }
+
+    /*
+      @description 删除tid标识
+    */
+    removeAstTreePathSign(astTree)
     resultCode.innerText = JSON.stringify(astTree)
     console.log('@ast', astTree)
 
@@ -131,11 +147,6 @@ function searchTagAndProps(tagFragment: string) {
             }
 
             // 找到空格,且不在属性内部, 是需要保存的节点
-            // 想进行深度匹配结果有bug
-            // if (c.match(/\s/) && !isPropsIndex && point + 1 < tagFragment.length
-            //     && !(tagFragment[point + 1].match(/\s/))) {
-            //     validGapSpace.push(point)
-            // }
             if (c.match(/\s/) && !isPropsIndex) {
                 validGapSpace.push(point)
             }
@@ -143,17 +154,20 @@ function searchTagAndProps(tagFragment: string) {
             point++
         }
 
-        // 分隔属性（只允许单一空格，没有做深层处理）
+        // 分隔多个属性属性（只允许单一空格，没有做深层处理）
         for (let i = 0; i < validGapSpace.length; i++) {
-            if (i == validGapSpace.length - 1) {
-                props.push(tagFragment.substring(validGapSpace[i]))
-            }
             if (i == 0) {
                 props.push(tagFragment.substring(0, validGapSpace[0]))
             } else {
                 props.push(tagFragment.substring(validGapSpace[i - 1], validGapSpace[i]))
             }
+
+            // 如果是最后一个直接截取最后的属性
+            if (i == validGapSpace.length - 1) {
+                props.push(tagFragment.substring(validGapSpace[i]))
+            }
         }
+
         // 说明只有一个属性
         if (validGapSpace.length == 0) {
             props.push(tagFragment)
@@ -176,12 +190,14 @@ function searchTagAndProps(tagFragment: string) {
 /*
   @description 将对应的开合标签按照ast树进行存储
 */
-function insertTreeNodeToAST(tag: any, attrs: any, astTree: any[], tagStack: string[], text?: string) {
+function insertTreeNodeToAST(tagPath: any, attrs: any, astTree: any[], tagStack: any[], text?: string) {
     // 插入对应的tagStack节点后
     if (tagStack.length > 1) {
 
-        const textTag = tagStack[tagStack.length - 1]
-        const fatherTag: any = tagStack[tagStack.length - 2]
+        const textStackPath = tagStack
+        const tagTmp = [...tagStack]
+        tagTmp.pop()
+        const tagStackPath: any = tagTmp
         // 遍历每一个根ast树（需要深度和广度同时遍历）
         astTree.forEach((rootNode: any) => {
             let linkPoint: any = rootNode
@@ -191,24 +207,29 @@ function insertTreeNodeToAST(tag: any, attrs: any, astTree: any[], tagStack: str
             */
             let vNode: any
             if (text) {
-                vNode = searchSameTagTreeNode(textTag, rootNode)
+                vNode = searchSameTagTreeNode(textStackPath, rootNode, 0)
             } else {
-                vNode = searchSameTagTreeNode(fatherTag, rootNode)
+                vNode = searchSameTagTreeNode(tagStackPath, rootNode, 0)
             }
 
-            if (!vNode.children) {
-                vNode.children = []
+            // 判断是否找到对应的虚拟节点，如未找到说明在第二颗树中
+            if (vNode) {
+
+
+                if (!vNode.children) {
+                    vNode.children = []
+                }
+                let node: any
+                if (text) node = {text, type: 3}
+                else node = {...tagPath, attrs, type: 1}
+                vNode.children.push(node)
             }
-            let node: any
-            if (text) node = {text, type: 3}
-            else node = {tag, attrs, type: 1}
-            vNode.children.push(node)
 
         })
 
     } else {
         // 根节点
-        astTree.push({tag, attrs, type: 1})
+        astTree.push({...tagPath, attrs, type: 1})
 
     }
 }
@@ -218,18 +239,46 @@ function insertTreeNodeToAST(tag: any, attrs: any, astTree: any[], tagStack: str
   @description  在treeNode中查找相同的接待你并返回引用，如果是文本节点则查找相同的treeNode
   @attempt
 */
-function searchSameTagTreeNode(peekTag: any, treeNode: any): any {
+function searchSameTagTreeNode(stackPath: any, treeNode: any, deepIndex: number): any {
 
-    // 插入文本找到了相同的节点
-    if (treeNode.tag === peekTag) {
-        return treeNode
-    } else {
+    // 找到了一个可复用的节点
+    if (treeNode.tag === stackPath[deepIndex].tag && treeNode.tid === stackPath[deepIndex].tid) {
+        deepIndex++
+        if (deepIndex === stackPath.length) {
+            return treeNode
+        }
+        // 需要继续找需要用到的节点
         if (treeNode.children) {
 
             for (let i = 0; i < treeNode.children.length; i++) {
-                const res = searchSameTagTreeNode(peekTag, treeNode.children[i])
+                const res = searchSameTagTreeNode(stackPath, treeNode.children[i], deepIndex)
                 if (res) return res
             }
+        }
+    }
+}
+
+
+/*
+  @description 移除路径标识符
+*/
+function removeAstTreePathSign(astTree: any[]) {
+    astTree.forEach((treeNode: any) => {
+        // 遍历每颗根子树删除tid属性
+        removeAstTreeTid(treeNode)
+    })
+}
+
+/*
+  @description 递归深度遍历删除tid属性
+*/
+function removeAstTreeTid(treeNode: any) {
+    if (Reflect.has(treeNode, 'tid')) {
+        Reflect.deleteProperty(treeNode, 'tid')
+    }
+    if (Reflect.has(treeNode, 'children')) {
+        for (let i = 0; i < treeNode.children.length; i++) {
+            removeAstTreeTid(treeNode.children[i])
         }
     }
 }

@@ -7,15 +7,16 @@
 import useMustache from '@/mustache/useMustache'
 import leetCode10 from "@/algorithm/leetCode10";
 import useSnabbdom from "@/snabbdom/useSnabbdom";
+import leetCode5 from "@/algorithm/leetCode5";
 import useAST from "@/AST/useAST";
 // import LanQiao from '@/algorithm/LanQiao'
 
-useAST()
+// useAST()
 // useMustache()
 // useSnabbdom()
 
 // leetCode10()
-
+console.log(leetCode5('civilwartestingwhetherthatnaptionoranynartionsoconceivedandsodedicatedcanlongendureWeareqmetonagreatbattlefiemldoftzhatwarWehavecometodedicpateaportionofthatfieldasafinalrestingplaceforthosewhoheregavetheirlivesthatthatnationmightliveItisaltogetherfangandproperthatweshoulddothisButinalargersensewecannotdedicatewecannotconsecratewecannothallowthisgroundThebravelmenlivinganddeadwhostruggledherehaveconsecrateditfaraboveourpoorponwertoaddordetractTgheworldadswfilllittlenotlenorlongrememberwhatwesayherebutitcanneverforgetwhattheydidhereItisforusthelivingrathertobededicatedheretotheulnfinishedworkwhichtheywhofoughtherehavethusfarsonoblyadvancedItisratherforustobeherededicatedtothegreattdafskremainingbeforeusthatfromthesehonoreddeadwetakeincreaseddevotiontothatcauseforwhichtheygavethelastpfullmeasureofdevotionthatweherehighlyresolvethatthesedeadshallnothavediedinvainthatthisnationunsderGodshallhaveanewbirthoffreedomandthatgovernmentofthepeoplebythepeopleforthepeopleshallnotperishfromtheearth'));
 
 function convert(arr: any) {
     if (!Array.isArray(arr)) console.log('需要传入数组')
